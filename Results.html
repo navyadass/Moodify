@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+</style>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
+var searchQuery = getUrlParameter('mood');
+  $.ajax({
+    type: "GET",
+    dataType: "jsonp",
+    url: "https://www.googleapis.com/customsearch/v1",
+    data: {
+      key: "AIzaSyCzb6SI_JRrp6xLLYV617Ary6n59h36ros",
+      cx: "004286675445984025592:ypgpkv9fjd4",
+      filter: "1",
+      searchType: "image",
+      
+      q: searchQuery
+    }
+  }).done(function(data) {
+    console.log(data);
+    var googleResults = data.items;
+    $(".result li").remove();
+	 var count=0;
+    $.each(googleResults, function(i, o) {
+      var imageURL = o.image.thumbnailLink;
+      if (i % 2 != 0) {
+		if(count==5)
+		{
+			console.log(count);
+			$("#result").append('<br>');
+		}
+        $("#result").append("<span class='result_item'><img style='height: 130px; width: 200px;' src='" + imageURL + "'/></span>");
+		$("#result").append("           ");
+		count+=1;
+      } else {
+		if(count==5)
+		{
+			$("#result").append('<br>');
+		}
+        $("#result").append("<span class='result_item'><img style='height: 130px; width: 200px;' src='" + imageURL + "' /></span>");
+		$("#result").append("  ");
+		count+=1;
+      }
+	  
+    })
+  });
+  function make_base_auth(user, password) {
+    var tok = user + ':' + password;
+    var hash = btoa(tok);
+    return "Basic " + hash;
+  }
+  $.ajax({
+    type: "GET",
+    dataType: "json",
+    url: "https://api.datamarket.azure.com/Bing/Search/v1/Image",
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader("Authorization", make_base_auth("", "GfsqxTjDPIKNuXQZDeqj2z4uaaHNx9X0QhKYBn4Xgeg="));
+    },
+    data: {
+      Query: "'" + searchQuery + "'",
+    }
+  }).done(function(data) {
+    console.log(data);
+    var bingResults = data.d.results;
+    $(".result li").remove();
+    $.each(bingResults, function(i, o) {
+      var imageURL = o.Thumbnail.MediaUrl;
+      if (i % 2 != 0) {
+        $("#result").append("<span class='result_item'><img src='" + imageURL + "' /></span>");
+      } else {
+        $("#result").append("<span class='result_item'><img src='" + imageURL + "' /></span>");
+      }
+    })
+  });
+</script>
+<div id="result">
+<form method='get' action='HomePage.html'>
+<input type='submit' value='Done'>
+</div>
+</form>
+</div>
+</body>
+</html>
